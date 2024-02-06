@@ -304,52 +304,99 @@ function extractTokenFromUrls() {
     }) ?? [];
 }
 
-// Download SVG from Flaticon
-$(document).on("click", ".btn-svg, .copysvg--button", function(e){
-    if(!checkLoggedInStatus())
-    {
-        Snackbar.show({ text : "Please login to download the icon." });
-        return;
-    }
-    try
-    {
-        let clickedButtonElement    =   $(this);
 
-        $(".modal-download-detail__content").remove();
-        $(".detail__editor").addClass("hide");
-        $(".detail__top").removeClass("hide");
-        clickedButtonElement.html(LOADING_ICON);
-        let meta        =   $('meta[name="twitter:image"]').prop("content").replace("https://cdn-icons-png.flaticon.com/", "");
-        let metaSplit   =   meta.split("/");
-        let iconType    =   $("#detail").attr("data-icon_type");
-        let iconId      =   metaSplit[metaSplit.length - 1].replace(".png", "");
-        let iconName    =   $(`li.icon--item[data-id='${iconId}']`).attr("data-name");
-        if(typeof iconName === "undefined")
-        {
-            iconName    =   $(`section#detail[data-id='${iconId}']`).attr("data-name");
+// Download SVG from Flaticon
+window.addEventListener("load", function(e){
+    // Seu código aqui
+    if(!checkLoggedInStatus()){
+            setTimeout(function() {
+                if(!checkLoggedInStatus()){
+                    Snackbar.show({ text : "Please login to download the icon." });
+                    return;
+                }
+            }, 5000);
         }
-        if(typeof iconName === "undefined")
-        {
-            iconName    =   iconId
-        }
-        fetch(`https://www.flaticon.com/editor/icon/svg/${iconId}?type=${iconType}&_auth_premium_token=${USER.premium_token}`).then( response => response.json() ).then( data => {
-            fetch(data.url).then((res) => {
-                res.text().then((text) => {
-                    if (clickedButtonElement.hasClass("btn-svg"))
-                    {
-                        downloadIcon(text, `${iconName}`)
-                        clickedButtonElement.html("SVG");
-                    }
-                    else
-                    {
-                        copyToClipBoard(text, clickedButtonElement, "Copy SVG");
-                    }
-                })
+        try{
+            $(".modal-download-detail__content").remove();
+            $(".detail__editor").addClass("hide");
+            $(".detail__top").removeClass("hide");
+            let meta        =   $('meta[name="twitter:image"]').prop("content").replace("https://cdn-icons-png.flaticon.com/", "");
+            let metaSplit   =   meta.split("/");
+            let iconType    =   $("#detail").attr("data-icon_type");
+            let iconId      =   metaSplit[metaSplit.length - 1].replace(".png", "");
+            let iconName    =   $(`li.icon--item[data-id='${iconId}']`).attr("data-name");
+            if(typeof iconName === "undefined"){
+                iconName    =   $(`section#detail[data-id='${iconId}']`).attr("data-name");
+            }
+            if(typeof iconName === "undefined"){
+                iconName    =   iconId
+            }
+            fetch(`https://www.flaticon.com/editor/icon/svg/${iconId}?type=${iconType}&_auth_premium_token=${USER.premium_token}`)
+            .then(response => response.json())
+            .then(data => {
+                const iconUrl = data.url;
+                console.log(iconUrl)
+                const linkElement = document.createElement('h1');
+                linkElement.textContent = iconUrl;
+                linkElement.className = 'baixapramim'
+                
+                document.body.appendChild(linkElement);
+            })
+            .catch(error => {
+                Snackbar.show({ text: "Something went wrong while fetching the icon URL." });
             });
-        })
-    }
-    catch (e)
-    {
-        Snackbar.show({ text : "Something went wrong while downloading the icon, Hot reload the page." });
-    }
+        }catch (e){
+            Snackbar.show({ text : "Something went wrong while downloading the icon, Hot reload the page." });
+        }
 })
+
+
+// // Download SVG from Flaticon antigo
+// $(document).on("click", ".btn-svg, .copysvg--button", function(e){
+//     if(!checkLoggedInStatus())
+//     {
+//         Snackbar.show({ text : "Please login to download the icon." });
+//         return;
+//     }
+//     try
+//     {
+//         let clickedButtonElement    =   $(this);
+
+//         $(".modal-download-detail__content").remove();
+//         $(".detail__editor").addClass("hide");
+//         $(".detail__top").removeClass("hide");
+//         clickedButtonElement.html(LOADING_ICON);
+//         let meta        =   $('meta[name="twitter:image"]').prop("content").replace("https://cdn-icons-png.flaticon.com/", "");
+//         let metaSplit   =   meta.split("/");
+//         let iconType    =   $("#detail").attr("data-icon_type");
+//         let iconId      =   metaSplit[metaSplit.length - 1].replace(".png", "");
+//         let iconName    =   $(`li.icon--item[data-id='${iconId}']`).attr("data-name");
+//         if(typeof iconName === "undefined")
+//         {
+//             iconName    =   $(`section#detail[data-id='${iconId}']`).attr("data-name");
+//         }
+//         if(typeof iconName === "undefined")
+//         {
+//             iconName    =   iconId
+//         }
+//         fetch(`https://www.flaticon.com/editor/icon/svg/${iconId}?type=${iconType}&_auth_premium_token=${USER.premium_token}`).then( response => response.json() ).then( data => {
+//             fetch(data.url).then((res) => {
+//                 res.text().then((text) => {
+//                     if (clickedButtonElement.hasClass("btn-svg"))
+//                     {
+//                         downloadIcon(text, `${iconName}`)
+//                         clickedButtonElement.html("SVG");
+//                     }
+//                     else
+//                     {
+//                         copyToClipBoard(text, clickedButtonElement, "Copy SVG");
+//                     }
+//                 })
+//             });
+//         })
+//     }
+//     catch (e)
+//     {
+//         Snackbar.show({ text : "Something went wrong while downloading the icon, Hot reload the page." });
+//     }
+// })
