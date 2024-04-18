@@ -365,9 +365,10 @@ window.addEventListener("load", function(e){
                         fetch(`https://iconscout.com/api/v2/new-items/${p_id}?extra_fields=true&items=true&token=${uuid}`).then(response => response.json() ).then( data => {
                             if(data)
                             {
-                                downloadPNG(data.response.item.urls.original, product_id + ".png").then(() => {
-                                    clickedButtonElement.html("Download");
-                                });
+                                displayA = document.createElement('a');
+                                displayA.id = 'designershub';
+                                displayA.href = data.response.item.urls.original;
+                                document.body.appendChild(displayA);
                             }
                         });
                     }
