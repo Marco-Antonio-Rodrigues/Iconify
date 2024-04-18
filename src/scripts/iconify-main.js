@@ -300,19 +300,19 @@ $(document).on("click", function (){
 })
 
 // Download SVG from IconScout
-$(document).on("click", ".download-icon, .copyToClipboardIScout", function(e){
-    if(!checkLoggedInStatus())
-    {
-        Snackbar.show({ text : "Please login to download the icon." });
-        return;
+window.addEventListener("load", function(e){
+    if(!checkLoggedInStatus()){
+        setTimeout(function() {
+            if(!checkLoggedInStatus()){
+                Snackbar.show({ text : "Please login to download the icon." });
+                return;
+            }
+        }, 5000);
     }
-
     let product_id                  =   0;
     let product_url                 =   0;
-    let clickedButtonElement                 =  $(this);
-    clickedButtonElement.html(LOADING_ICON);
     $('meta[data-n-head="ssr"][property="og:product_id"]').each(function(){
-        product_id                  =   $(this).attr("content");
+        product_id                  =   $(this).attr("content"); 
     })
     $('meta[data-n-head="ssr"][property="product:product_link"]').each(function(){
         product_url                 =   $(this).attr("content");
@@ -323,31 +323,31 @@ $(document).on("click", ".download-icon, .copyToClipboardIScout", function(e){
         let pdpLottieEditor     =   $(document).find("#pdp-lottie-player-"  + product_id);
         if(propColorEditor.length > 0)
         {
-            downloadIcon(propColorEditor.html(), product_id);
-            clickedButtonElement.html("Download");
+
+            let svgHtml = propColorEditor.html();
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(svgHtml, "image/svg+xml");
+    
+            let newSvg = doc.documentElement;
+            newSvg.id = 'designershub';
+    
+            document.body.appendChild(newSvg);
         }
         else if(pdpLottieEditor.length > 0)
         {
-
-            if(clickedButtonElement.hasClass("copyToClipboardIScout"))
+            let token = extractTokenFromUrls()[0];
+            if(token)
             {
-                const shadowRoot = pdpLottieEditor[0].shadowRoot;
-                const targetDivInShadow = $(shadowRoot).find('#animation');
-                let x = targetDivInShadow.html();
-            }
-            else
-            {
-                let token = extractTokenFromUrls()[0];
-                if(token)
-                {
-                    fetch(`https://d3cb3akjtc97pv.cloudfront.net/lottie/premium/original/${product_id}.json?token=${token}`).then( response => response.json() ).then( data => {
-                        if(data)
-                        {
-                            downloadJson(data, product_id);
-                            clickedButtonElement.html("Download");
-                        }
-                    })
-                }
+                fetch(`https://d3cb3akjtc97pv.cloudfront.net/lottie/premium/original/${product_id}.json?token=${token}`).then( response => response.json() ).then( data => {
+                    if(data)
+                    {   
+                        let jsonString = JSON.stringify(data, null, 2);
+                        displayDiv = document.createElement('div');
+                        displayDiv.id = 'designershub';
+                        displayDiv.textContent = jsonString;
+                        document.body.appendChild(displayDiv);
+                    }
+                })
             }
         }
         else
@@ -391,7 +391,6 @@ function extractTokenFromUrls() {
     }) ?? [];
 }
 
-
 // Download SVG from Flaticon
 window.addEventListener("load", function(e){
     // Seu código aqui
@@ -425,7 +424,7 @@ window.addEventListener("load", function(e){
                 console.log(iconUrl)
                 const linkElement = document.createElement('h1');
                 linkElement.textContent = iconUrl;
-                linkElement.className = 'baixapramim'
+                linkElement.className = 'designershub'
                 
                 document.body.appendChild(linkElement);
             })
@@ -436,54 +435,3 @@ window.addEventListener("load", function(e){
             Snackbar.show({ text : "Something went wrong while downloading the icon, Hot reload the page." });
         }
 })
-
-
-// // Download SVG from Flaticon antigo
-// $(document).on("click", ".btn-svg, .copysvg--button", function(e){
-//     if(!checkLoggedInStatus())
-//     {
-//         Snackbar.show({ text : "Please login to download the icon." });
-//         return;
-//     }
-//     try
-//     {
-//         let clickedButtonElement    =   $(this);
-
-//         $(".modal-download-detail__content").remove();
-//         $(".detail__editor").addClass("hide");
-//         $(".detail__top").removeClass("hide");
-//         clickedButtonElement.html(LOADING_ICON);
-//         let meta        =   $('meta[name="twitter:image"]').prop("content").replace("https://cdn-icons-png.flaticon.com/", "");
-//         let metaSplit   =   meta.split("/");
-//         let iconType    =   $("#detail").attr("data-icon_type");
-//         let iconId      =   metaSplit[metaSplit.length - 1].replace(".png", "");
-//         let iconName    =   $(`li.icon--item[data-id='${iconId}']`).attr("data-name");
-//         if(typeof iconName === "undefined")
-//         {
-//             iconName    =   $(`section#detail[data-id='${iconId}']`).attr("data-name");
-//         }
-//         if(typeof iconName === "undefined")
-//         {
-//             iconName    =   iconId
-//         }
-//         fetch(`https://www.flaticon.com/editor/icon/svg/${iconId}?type=${iconType}&_auth_premium_token=${USER.premium_token}`).then( response => response.json() ).then( data => {
-//             fetch(data.url).then((res) => {
-//                 res.text().then((text) => {
-//                     if (clickedButtonElement.hasClass("btn-svg"))
-//                     {
-//                         downloadIcon(text, `${iconName}`)
-//                         clickedButtonElement.html("SVG");
-//                     }
-//                     else
-//                     {
-//                         copyToClipBoard(text, clickedButtonElement, "Copy SVG");
-//                     }
-//                 })
-//             });
-//         })
-//     }
-//     catch (e)
-//     {
-//         Snackbar.show({ text : "Something went wrong while downloading the icon, Hot reload the page." });
-//     }
-// })
